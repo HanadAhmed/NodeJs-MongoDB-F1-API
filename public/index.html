@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet"/>
+    <link href="./stylesheets/styles.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<h1 class="title">Formula 1 REST API</h1>
+<div id ='homepage'>
+    <h3>Find the closest Formula 1 Circuit to you!</h3>
+    <div id="locations"></div>
+</div>
+
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script src="https://unpkg.com/react@15/dist/react.js"></script>
+<script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+
+
+<script type="text/babel">
+
+    var Circuits = React.createClass({
+        getInitialState: function(){
+            return({
+                circuits: []
+            });
+        },
+
+        render: function () {
+            var circuits = this.state.circuits;
+            console.log(this.getInitialState());
+            circuits = circuits.map(function (circuit,index) {
+                return(
+                    <li key={index}>
+                        <span className = "raceName"> {circuit.raceName}</span>
+                        <span className = "circuitName"> {circuit.Circuit.circuitName}</span>
+                        <span className = "dist"> {Math.floor(circuit.dist / 1000)} km</span>
+                    </li>
+                )
+            });
+            return(
+                <div id="circuit-container">
+                    <form id="search" onSubmit={this.handleSubmit}>
+                        <label>Enter your Latitude</label>
+                        <input type="text" ref="lat" placeholder="latitude" required/>
+                        <label>Enter your longitude</label>
+                        <input type="text" ref="long" placeholder="longitude" required/>
+                        <input type="submit" value="Find Circuits"/>
+                    </form>
+                    <ul>{circuits}</ul>
+                </div>
+            );
+        },
+
+        handleSubmit: function (e) {
+            e.preventDefault();
+            var long = this.refs.long.value;
+            var lat = this.refs.lat.value;
+
+            fetch('/f1/schedule/near?long=' +long+ '&lat=' +lat).then(function (data){
+                return data.json();
+            }).then( json => {
+                this.setState({
+                    circuits: json
+                })
+            });
+        }
+    });
+
+    ReactDOM.render(<Circuits/>, document.getElementById('locations'));
+
+</script>
+
+</body>
+</html>
